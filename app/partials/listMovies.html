@@ -1,0 +1,20 @@
+<div class="container-fluid">
+	<div class="row-fluid">
+		<div class="span10">
+			<p>This is my partial, let's see if it works</p>
+			<div class="movies">
+				<div ng-repeat="movie in movies" class="thumbnail">
+					<div class="container-fluid">
+						<div class="span1">
+							<a href="#movies/{{movie.id}}" class="thumb"><img ng-src="{{tmdbImagesPath}}{{movie.poster_path}}?api_key={{apiKey}}"></a>
+						</div>
+						<div class="span9">	  
+							<a href="#movies/{{movie.id}}">{{movie.title}}</a>
+							<p>{{movie.overview}}</p>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>

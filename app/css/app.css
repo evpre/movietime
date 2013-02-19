@@ -28,3 +28,8 @@
   content: "";
   padding: 0;
 }
+
+.thumb {
+  margin: -1em 1em 1.5em 0em;
+  padding-bottom: 1em;
+}
