@@ -10,8 +10,8 @@ angular.module('myApp.services', []).
 
 angular.module('movietimeServices', ['ngResource']).
     factory('Movie', function($resource){
-  		var movies = $resource('database/data.json', {}, {
-    		query: {method:'GET', params:{}, isArray:true}
+  		var movies = $resource('database/:movieId.json', {}, {
+    		query: {method:'GET', params:{movieId:'data'}, isArray:true}
   			});
   		return movies;
 	});

@@ -1,2 +1,4 @@
-{{movie.id}}
-{{movie.title}}
+<div class = "thumbnail">
+	<h1>{{movie.title}}</h1>
+	<img ng-src="{{tmdbPosterImagesPath}}{{movie.poster_path}}?api_key={{apiKey}}">
+</div>

@@ -16,6 +16,6 @@ function ListMoviesCtrl($scope, Movie) {
 ListMoviesCtrl.$inject = ['$scope', 'Movie'];
 
 function MovieDetailCtrl($scope, $routeParams, Movie) {
-	$scope.movie = Movie.get({id: $routeParams.movieId});
+	$scope.movie = Movie.get({movieId: $routeParams.movieId});
 }
 ListMoviesCtrl.$inject = ['$scope', 'Movie'];

@@ -11,6 +11,7 @@ var app = angular.module('myApp', ['myApp.filters', 'myApp.services', 'myApp.dir
     $routeProvider.otherwise({redirectTo: '/view1'});
   }]);
 app.run(function ($rootScope) {
-    $rootScope.tmdbImagesPath = 'http://cf2.imgobject.com/t/p/w92/'; 
+    $rootScope.tmdbThumbImagesPath = 'http://cf2.imgobject.com/t/p/w92/'; 
+    $rootScope.tmdbPosterImagesPath = 'http://cf2.imgobject.com/t/p/w342/'; 
     $rootScope.apiKey = '0250e8e7c9e45a8e7a2c6a72774aec07'; 
 });
