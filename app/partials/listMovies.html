@@ -6,10 +6,10 @@
 				<div ng-repeat="movie in movies" class="thumbnail">
 					<div class="container-fluid">
 						<div class="span1">
-							<a href="#movies/{{movie.id}}" class="thumb"><img ng-src="{{tmdbThumbImagesPath}}{{movie.poster_path}}?api_key={{apiKey}}"></a>
+							<a href="#movies/{{movie._id}}" class="thumb"><img ng-src="{{tmdbThumbImagesPath}}{{movie.poster_path}}?api_key={{apiKey}}"></a>
 						</div>
 						<div class="span9">	  
-							<a href="#movies/{{movie.id}}">{{movie.title}}</a>
+							<a href="#movies/{{movie._id}}">{{movie.title}}</a>
 							<p>{{movie.overview}}</p>
 						</div>
 					</div>

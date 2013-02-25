@@ -1,41 +1,59 @@
-var mongo = require('mongodb');
- 
+var mongo = require('mongodb'),
+     util = require('util');
 var Server = mongo.Server,
     Db = mongo.Db,
     BSON = mongo.BSONPure;
  
-var server = new Server('localhost', 27017, {auto_reconnect: true});
-db = new Db('moviesdb', server);
+var server = new Server('localhost', 27017,{auto_reconnect: true});
+db = new Db('moviesdb', server, {w: 1});
  
 db.open(function(err, db) {
     if(!err) {
-        console.log("Connected to 'movies' database");
+        util.puts("Connected to 'movies' database");
         db.collection('movies', {safe:true}, function(err, collection) {
             if (err) {
-                console.log("The 'movies' collection doesn't exist. Creating it with sample data...");
+                util.puts("The 'movies' collection doesn't exist. Creating it with sample data...");
                 populateDB();
             }
         });
     }
-});
-exports.findById = function(req, res) {
-    var id = req.params.id;
+    else{
+        util.puts(err);
+    }
+}); 
+
+exports.findById = function(req, res, collection, id) {
     console.log('Retrieving movie: ' + id);
-    db.collection('movies', function(err, collection) {
+    db.collection(collection, function(err, collection) {
         collection.findOne({'_id':new BSON.ObjectID(id)}, function(err, item) {
-            res.send(item);
+            if(!err && item!=null){
+                res.write(JSON.stringify(item));
+                res.end();
+            }
+            else {
+                res.writeHead(404, {'Content-Type': 'text/html'});
+                res.write('<!doctype html>\n');
+                res.write('<title>404 Not Found</title>\n');
+                res.write('<h1>Not Found</h1>');
+                res.write(
+                   '<p>The requested item ' + collection +'/'+id +
+                   ' was not found on this server.</p>'
+                );
+                res.end();
+            }
         });
     });
 };
-exports.findAll = function() {
-    db.collection('movies', function(err, collection) {
+exports.findAll = function(req,res,collection) {
+    db.collection(collection, function(err, collection) {
         collection.find().toArray(function(err, items) {
-            retutn items;
+            res.write(JSON.stringify(items));
+            res.end();
         });
     });
 };
 var populateDB = function() {
- 
+    util.puts("populando base de datos");
     var movies = [
     {
         title: "movieTest1",

@@ -33,3 +33,9 @@
   margin: -1em 1em 1.5em 0em;
   padding-bottom: 1em;
 }
+
+footer {
+  position: relative;
+  width: 100%;
+  text-align: center;
+}

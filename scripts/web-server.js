@@ -4,7 +4,8 @@ var util = require('util'),
     http = require('http'),
     fs = require('fs'),
     url = require('url'),
-    events = require('events');
+    events = require('events'),
+    moviesDB = require('../app/js/moviesDB');
 
 var DEFAULT_PORT = 8000;
 
@@ -55,7 +56,7 @@ HttpServer.prototype.handleRequest_ = function(req, res) {
   if (req.headers['user-agent']) {
     logEntry += ' ' + req.headers['user-agent'];
   }
-  util.puts(logEntry);
+  //util.puts(logEntry);
   req.url = this.parseUrl_(req.url);
   var handler = this.handlers[req.method];
   if (!handler) {
@@ -91,10 +92,13 @@ StaticServlet.prototype.handleRequest = function(req, res) {
     return String.fromCharCode(parseInt(hex, 16));
   });
   var parts = path.split('/');
-  util.puts("-------------------------------"+req.url.pathname+"----------------------------------------------");
   if (parts[parts.length-1].charAt(0) === '.')
     return self.sendForbidden_(req, res, path);
   fs.stat(path, function(err, stat) {
+    //before getting an error, we check if it's a database call
+    if(parts.length > 1 && parts[2] === "database"){
+      return self.callDatabase_(req,res,path,parts);
+    }
     if (err)
       return self.sendMissing_(req, res, path);
     if (stat.isDirectory())
@@ -103,6 +107,19 @@ StaticServlet.prototype.handleRequest = function(req, res) {
   });
 }
 
+StaticServlet.prototype.callDatabase_ = function (req, res, path, parts){
+  switch(parts[3]){
+    case 'movies':
+      if(parts[4]==="all")
+        moviesDB.findAll(req, res, 'movies');
+      else
+        moviesDB.findById(req, res, 'movies',parts[4]);
+    break;
+    default:
+    break; 
+ 
+  }
+}
 StaticServlet.prototype.sendError_ = function(req, res, error) {
   res.writeHead(500, {
       'Content-Type': 'text/html'

@@ -6,6 +6,9 @@
   <link rel="stylesheet" href="css/app.css"/>
   <link rel="stylesheet" href="css/bootstrap.css">
 </head>
+<header>
+  <h2>MOVIE TIME</h2>
+</header>
 <body>
   <ul class="menu">
     <li><a href="#/listMovies">List Movies</a></li>
@@ -13,8 +16,6 @@
   </ul>
 
   <div ng-view></div>
-
-  <div>Angular seed app: v<span app-version></span></div>
 
   <!-- In production use:
   <script src="//ajax.googleapis.com/ajax/libs/angularjs/1.0.4/angular.min.js"></script>
@@ -27,4 +28,7 @@
   <script src="js/directives.js"></script>
   <script src="lib/angular/angular-resource.js"></script>
 </body>
+<footer>
+  Angular seed app: v<span app-version></span>
+</footer>
 </html>
