@@ -21,10 +21,12 @@ db.open(function(err, db) {
         util.puts(err);
     }
 }); 
-
-exports.findById = function(req, res, collection, id) {
+/*
+ * Basic common DB operations
+ */
+exports.findById = function(req, res, table, id) {
     console.log('Retrieving movie: ' + id);
-    db.collection(collection, function(err, collection) {
+    db.collection(table, function(err, collection) {
         collection.findOne({'_id':new BSON.ObjectID(id)}, function(err, item) {
             if(!err && item!=null){
                 res.write(JSON.stringify(item));
@@ -32,26 +34,90 @@ exports.findById = function(req, res, collection, id) {
             }
             else {
                 res.writeHead(404, {'Content-Type': 'text/html'});
-                res.write('<!doctype html>\n');
-                res.write('<title>404 Not Found</title>\n');
-                res.write('<h1>Not Found</h1>');
-                res.write(
-                   '<p>The requested item ' + collection +'/'+id +
-                   ' was not found on this server.</p>'
-                );
                 res.end();
             }
         });
     });
 };
-exports.findAll = function(req,res,collection) {
-    db.collection(collection, function(err, collection) {
+
+exports.findAll = function(req,res,table) {
+    db.collection(table, function(err, collection) {
         collection.find().toArray(function(err, items) {
             res.write(JSON.stringify(items));
             res.end();
         });
     });
 };
+
+exports.insert = function(data, res, table) {
+    var item = JSON.parse(data);
+    util.puts('Adding item: ' + item);
+    db.collection(table, function(err, collection) {
+        collection.insert(item, {safe:true}, function(err, result) {
+            if (err) {
+                res.write('error : An error has occurred');
+                res.end();
+            } else {
+                util.puts('Success: ' + result[0]);
+                res.end();
+            }
+        });
+    });
+}
+
+exports.update = function(data, res, table) {
+    var item = JSON.parse(data);
+
+    item._id = new BSON.ObjectID(item._id);
+    util.puts('Updating item: ' + item._id);
+    db.collection(table, function(err, collection) {
+        collection.update({'_id':item._id}, item, {safe:true}, function(err, result) {
+            if (err) {
+                util.puts('Error updating item: ' + err);
+                res.write('error : An error has occurred');
+                res.end();
+            } else {
+                util.puts('' + result + ' document(s) updated');
+                res.writeHead(200);
+                res.end();
+            }
+        });
+    });
+}
+
+exports.delete = function(req, res, table, id) {
+    console.log('Deleting '+table+': ' + id);
+    db.collection(table, function(err, collection) {
+        collection.remove({'_id':new BSON.ObjectID(id)}, {safe:true}, function(err, result) {
+            if (err) {
+                res.write('error : An error has occurred - ' + err);
+                res.end();
+            } else {
+                console.log('' + result + ' document(s) deleted');
+                res.end();
+            }
+        });
+    });
+}
+
+exports.insertOrUpdateGenre = function(data, res, table) {
+    var item = JSON.parse(data);
+    var genres = item.genres;
+    for (item in genres){
+        db.collection(table, function(err, collection) {
+            collection.update({'id':genres[item].id}, genres[item], {safe:true, upsert: true}, function(err, result) {
+                if (err) {
+                    util.puts('Error updating item: ' + err);
+                } else {
+                    util.puts('' + result + ' document(s) updated');
+                }
+            });
+        });
+    }
+}
+/*
+ * other future DB operations
+ */
 var populateDB = function() {
     util.puts("populando base de datos");
     var movies = [

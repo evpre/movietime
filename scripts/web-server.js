@@ -12,7 +12,10 @@ var DEFAULT_PORT = 8000;
 function main(argv) {
   new HttpServer({
     'GET': createServlet(StaticServlet),
-    'HEAD': createServlet(StaticServlet)
+    'HEAD': createServlet(StaticServlet),
+    'POST': createServlet(DynamicServlet),
+    'DELETE': createServlet(DynamicServlet),
+    'PUT': createServlet(DynamicServlet)
   }).start(Number(argv[2]) || DEFAULT_PORT);
 }
 
@@ -52,11 +55,11 @@ HttpServer.prototype.parseUrl_ = function(urlString) {
 };
 
 HttpServer.prototype.handleRequest_ = function(req, res) {
-  var logEntry = req.method + ' ' + req.url;
+  /*var logEntry = req.method + ' ' + req.url;
   if (req.headers['user-agent']) {
     logEntry += ' ' + req.headers['user-agent'];
   }
-  //util.puts(logEntry);
+  util.puts(logEntry);*/
   req.url = this.parseUrl_(req.url);
   var handler = this.handlers[req.method];
   if (!handler) {
@@ -66,7 +69,54 @@ HttpServer.prototype.handleRequest_ = function(req, res) {
     handler.call(this, req, res);
   }
 };
+/**
+ * Dynamic Servlet 
+ */
+function DynamicServlet(){}
 
+DynamicServlet.prototype.handleRequest = function(req, res){
+  var path = ('./' + req.url.pathname).replace('//','/').replace(/%(..)/g, function(match, hex){
+    return String.fromCharCode(parseInt(hex, 16));
+  });
+  var parts = path.split('/');
+  switch(req.method){
+    case 'POST':
+      return insertItem(req, res, parts);
+    case 'DELETE':
+      return deleteItem(req, res, parts);
+    case 'PUT':
+      return editItem(req, res, parts);
+    default: 
+    break;
+  }
+}
+
+function insertItem(req, res, parts){
+  var data = '';
+  req.on('data', function(chunk){
+    data+=chunk;
+  });
+  req.on('end', function(){
+    //data is inserted into parts[3] table
+    moviesDB.insert(data, res, parts[3]);
+  });
+}
+
+function editItem(req, res, parts){
+  var data = '';
+  req.on('data', function(chunk){
+    data+=chunk;
+  });
+  req.on('end', function(){
+    //parts[4] is updated in parts[3] table
+    moviesDB.update(data, res, parts[3]);
+  });
+}
+
+function deleteItem(req, res, parts){
+  //parts[4] is deleted from parts[3] table
+  moviesDB.delete(req, res, parts[3], parts[4]);
+}
 /**
  * Handles static content.
  */
@@ -96,8 +146,8 @@ StaticServlet.prototype.handleRequest = function(req, res) {
     return self.sendForbidden_(req, res, path);
   fs.stat(path, function(err, stat) {
     //before getting an error, we check if it's a database call
-    if(parts.length > 1 && parts[2] === "database"){
-      return self.callDatabase_(req,res,path,parts);
+    if(parts.length > 2 && parts[2] === "database"){
+      return self.callDatabase_(req,res,parts);
     }
     if (err)
       return self.sendMissing_(req, res, path);
@@ -107,19 +157,31 @@ StaticServlet.prototype.handleRequest = function(req, res) {
   });
 }
 
-StaticServlet.prototype.callDatabase_ = function (req, res, path, parts){
+StaticServlet.prototype.callDatabase_ = function (req, res, parts){
   switch(parts[3]){
+    //movies 'GET' operations
     case 'movies':
-      if(parts[4]==="all")
-        moviesDB.findAll(req, res, 'movies');
-      else
-        moviesDB.findById(req, res, 'movies',parts[4]);
+      if (req.method === 'GET'){
+        if(parts[4]==="all")
+          moviesDB.findAll(req, res, 'movies');
+        else
+          moviesDB.findById(req, res, 'movies',parts[4]);
+      }
     break;
+    case 'genres':
+      if (req.method === 'GET'){
+        if(parts[4]==="all")
+          moviesDB.findAll(req, res, 'genres');
+        else
+          moviesDB.findById(req, res, 'genres',parts[4]);
+      }
+    break;
+    //other classes 'GET' operations
     default:
     break; 
- 
   }
 }
+
 StaticServlet.prototype.sendError_ = function(req, res, error) {
   res.writeHead(500, {
       'Content-Type': 'text/html'

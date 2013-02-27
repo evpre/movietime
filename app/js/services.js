@@ -11,8 +11,11 @@ angular.module('myApp.services', []).
 var movietime = angular.module('movietimeServices', ['ngResource']);
 
 movietime.factory('Movie', function($resource){
-	var movies = $resource('database/movies/:movieId', {}, {
-		query: {method:'GET', params:{movieId:'all'}, isArray:true}
-		});
-	return movies;
+	var Movie = $resource('database/movies/:movieId', {},{edit: {method: 'PUT'}});
+	return Movie;
+});
+
+movietime.factory('Genre', function($resource){
+	var Genre = $resource('database/genres/:genreId', {},{edit: {method: 'PUT'}});
+	return Genre;
 });

@@ -1,0 +1,21 @@
+<section id= "movieForm">
+<form name = "movieForm">
+	<div class="control-group" ng-class="{error: movieForm.title.$invalid}">
+	    <label>Title</label>
+	    <input type="text" name="title" ng-model="movie.title" required>
+	    <span ng-show="movieForm.title.$error.required" class="help-inline">Required</span>
+  	</div>
+
+	<label>Overview</label>
+	<textarea name="overview" ng-model="movie.overview" required></textarea>
+
+  	<div class="control-group" ng-class="{error: movieForm.poster_path.$invalid}">
+	    <label>Poster Path</label>
+	    <input type="text" name="poster_path" ng-model="movie.poster_path" required>
+	    <span ng-show="movieForm.poster_path.$error.required" class="help-inline">Required</span>
+  	</div>
+	<a href="#/" class="btn">Cancel</a>
+  	<button ng-click="save()" ng-disabled="movieForm.$invalid"
+        class="btn btn-primary">Save</button>
+</form>
+</section>

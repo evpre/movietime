@@ -1,7 +1,7 @@
 <div class="container-fluid">
 	<div class="row-fluid">
 		<div class="span10">
-			<p>This is my partial, let's see if it works</p>
+			<p>Listing Movies</p>
 			<div class="movies">
 				<div ng-repeat="movie in movies" class="thumbnail">
 					<div class="container-fluid">
@@ -9,8 +9,12 @@
 							<a href="#movies/{{movie._id}}" class="thumb"><img ng-src="{{tmdbThumbImagesPath}}{{movie.poster_path}}?api_key={{apiKey}}"></a>
 						</div>
 						<div class="span9">	  
-							<a href="#movies/{{movie._id}}">{{movie.title}}</a>
+							<a href="#movies/{{movie._id}}">{{movie.title}}</a>							
 							<p>{{movie.overview}}</p>
+							<div class = "reButtons">
+								<button ng-click="remove(movie._id)" class="btn btn-danger">remove</button>
+								<button ng-click="edit(movie._id)" class="btn btn-inverse">edit</button>
+							</div>
 						</div>
 					</div>
 				</div>
