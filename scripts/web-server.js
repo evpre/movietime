@@ -43,6 +43,7 @@ function HttpServer(handlers) {
 }
 
 HttpServer.prototype.start = function(port) {
+  moviesDB.openDB();
   this.port = port;
   this.server.listen(port);
   util.puts('Http Server running at http://localhost:' + port + '/');
@@ -163,7 +164,7 @@ StaticServlet.prototype.callDatabase_ = function (req, res, parts){
     case 'movies':
       if (req.method === 'GET'){
         if(parts[4]==="all")
-          moviesDB.findAll(req, res, 'movies');
+          moviesDB.findAll(res, 'movies');
         else
           moviesDB.findById(req, res, 'movies',parts[4]);
       }
@@ -171,7 +172,7 @@ StaticServlet.prototype.callDatabase_ = function (req, res, parts){
     case 'genres':
       if (req.method === 'GET'){
         if(parts[4]==="all")
-          moviesDB.findAll(req, res, 'genres');
+          moviesDB.findAll(res, 'genres');
         else
           moviesDB.findById(req, res, 'genres',parts[4]);
       }

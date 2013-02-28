@@ -1,8 +1,5 @@
 var util = require('util'),
     http = require('http'),
-    fs = require('fs'),
-    url = require('url'),
-    events = require('events'),
     moviesDB = require('../app/js/moviesDB');
 
 var options = {

@@ -4,23 +4,26 @@ var Server = mongo.Server,
     Db = mongo.Db,
     BSON = mongo.BSONPure;
  
-var server = new Server('localhost', 27017,{auto_reconnect: true});
-db = new Db('moviesdb', server, {w: 1});
- 
-db.open(function(err, db) {
-    if(!err) {
-        util.puts("Connected to 'movies' database");
-        db.collection('movies', {safe:true}, function(err, collection) {
-            if (err) {
-                util.puts("The 'movies' collection doesn't exist. Creating it with sample data...");
-                populateDB();
-            }
-        });
-    }
-    else{
-        util.puts(err);
-    }
-}); 
+var db = '';
+exports.openDB = function (callback){
+    var server = new Server('localhost', 27017,{auto_reconnect: true});
+    db = new Db('moviesdb', server, {w: 1});
+     
+    db.open(function(err, db) {
+        if(!err) {
+            util.puts("Connected to 'movies' database");
+            db.collection('movies', {safe:true}, function(err, collection) {
+                if (err) {
+                    util.puts("The 'movies' collection doesn't exist. Creating it with sample data...");
+                    populateDB();
+                }
+            });
+        }
+        else{
+            util.puts(err);
+        }
+    }); 
+}
 /*
  * Basic common DB operations
  */
@@ -40,11 +43,16 @@ exports.findById = function(req, res, table, id) {
     });
 };
 
-exports.findAll = function(req,res,table) {
+exports.findAll = function(res,table, script) {
     db.collection(table, function(err, collection) {
         collection.find().toArray(function(err, items) {
-            res.write(JSON.stringify(items));
-            res.end();
+            if(script){
+                return items;
+            }
+            else{
+                res.write(JSON.stringify(items));
+                res.end();
+            }
         });
     });
 };
@@ -101,8 +109,7 @@ exports.delete = function(req, res, table, id) {
 }
 
 exports.insertOrUpdateGenre = function(data, res, table) {
-    var item = JSON.parse(data);
-    var genres = item.genres;
+    var genres = JSON.parse(data).genres;
     for (item in genres){
         db.collection(table, function(err, collection) {
             collection.update({'id':genres[item].id}, genres[item], {safe:true, upsert: true}, function(err, result) {
